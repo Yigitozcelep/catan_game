@@ -20,16 +20,16 @@ pub struct Point {
 
 pub fn create_random_map() -> Vec<Hexagon>{
     let resource_list = [Resources::Brick, Resources::Grain, Resources::Lumber, Resources::Ore, Resources::Wool];
-    let mut resource_weights = [3, 4, 4, 4, 3, 4];
+    let mut resource_weights = [3,4,4,3,4];
     let mut resource_weight_tot = 18;
-
+    
     let num_list = [2, 3,4,5,6, 8,9,10,11, 12];
     let mut num_weights = [1, 2,2,2,2, 2,2,2,2, 1];
     let mut num_weight_tot = 18;
 
     let mut rng =  SmallRng::from_entropy();
     let mut map: Vec<Hexagon> = Vec::new();
-    for _ in 0..16 {
+    for _ in 0..18 {
         let i = random_weighted_choice(&resource_weights, resource_weight_tot, &resource_list, &mut rng);
         let j = random_weighted_choice(&num_weights, num_weight_tot, &num_list, &mut rng);
         resource_weight_tot += -1;
