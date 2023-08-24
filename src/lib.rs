@@ -1,4 +1,4 @@
 pub mod game;
-pub mod communucation;
+pub mod frontend_communucation;
 
 
