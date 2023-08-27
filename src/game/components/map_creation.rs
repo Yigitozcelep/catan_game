@@ -29,8 +29,8 @@ pub struct State {
     hexagon_types: [HexagonType; 6],
     hexagon_type_weights: [isize; 6],
     hexagon_type_weight_tot: isize,
-    num_list: [isize; 10],
-    num_weights: [isize; 10] ,
+    num_list: [isize; 11],
+    num_weights: [isize; 11] ,
     num_weight_tot: isize,
     rng: SmallRng,
 }
@@ -43,8 +43,8 @@ impl State {
             hexagon_types: [HexagonType::Brick, HexagonType::Grain, HexagonType::Lumber, HexagonType::Wool, HexagonType::Ore, HexagonType::Desert], 
             hexagon_type_weights: [3,4,4,4,3,1], 
             hexagon_type_weight_tot: 19, 
-            num_list: [2, 3,4,5,6, 8,9,10,11, 12], 
-            num_weights: [1, 2,2,2,2, 2,2,2,2, 1], 
+            num_list: [2, 3,4,5,6,7, 8,9,10,11, 12], 
+            num_weights: [1, 2,2,2,2,0, 2,2,2,2, 1], 
             num_weight_tot: 18, 
             rng: SmallRng::from_entropy(), 
         }
@@ -89,8 +89,34 @@ fn get_random_hexagon(state: &mut State) -> Hexagon{
     Hexagon { num: state.num_list[num_index] as usize, resource, hexagon_type}
 }
 
-fn push_if_not_exist(my_vec: &mut Vec<(isize, isize)>, mov: (isize, isize)) {
+fn push_if_not_exist<T: PartialEq>(my_vec: &mut Vec<T>, mov: T) {
     if !my_vec.contains(&mov) { my_vec.push(mov);}
+}
+
+fn neighbour_hexagons (state: &State, mut x: isize, mut y: isize) -> Vec<usize>{
+    let mut excludes: Vec<usize> = Vec::new();
+    for mov in [(2,0), (2,2), (-2,2), (-2,0), (-2,-2), (2,-2)] {
+        x += mov.0;
+        y += mov.1;
+        for hex in &state.map[x as usize][y as usize].hexagons {
+            if hex.num != 0 && state.num_weights[hex.num  - 2] != 0 {
+                println!("-------------------------------------");
+                println!("hex_num: {}, result: {}", hex.num, (hex.num as isize - 2) as usize);
+                push_if_not_exist(&mut excludes, hex.num);
+            }
+        }
+    }
+    excludes
+}
+
+fn save_weights(excludes: &Vec<usize>, state: &mut State) {
+    state.num_weight_tot -= excludes.len() as isize;
+    excludes.iter().for_each(|num| state.num_weights[num - 2] = 0);
+}
+
+fn merge_weights(excludes: &Vec<usize>, state: &mut State) {
+    state.num_weight_tot += excludes.len() as isize;
+    excludes.iter().for_each(|num| state.num_weights[num - 2] = 1)
 }
 
 fn create_hexagon (state: &mut State, x: &mut isize, y: &mut isize, count: isize, plus_x: isize, plus_y: isize) { 
@@ -98,7 +124,10 @@ fn create_hexagon (state: &mut State, x: &mut isize, y: &mut isize, count: isize
         *x += plus_x;
         *y += plus_y;
         let moves = [(2,0), (2,2), (-2,2), (-2,0), (-2,-2), (2,-2)];
+        let mut excludes = neighbour_hexagons(state, *x, *y);
+        save_weights(&mut excludes, state);
         let hexagon = get_random_hexagon(state);
+        merge_weights(&excludes, state);
         state.hexagon_list.push(hexagon);
         for mov in moves.iter() {
             push_if_not_exist(&mut state.map[*x as usize][*y as usize].valid_moves, (mov.0 / 2, mov.1 / 2));

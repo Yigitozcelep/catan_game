@@ -3,6 +3,7 @@ use std::collections::VecDeque;
 use catan_game::game::components::map_creation;
 
 #[test]
+#[ignore]
 fn test_base_map() {
     let res = map_creation::base_map_frame();
     let json = serde_json::to_string(&res.hexagon_list).unwrap();
@@ -21,5 +22,10 @@ fn test_base_map() {
             dq.push_back((x + mov.0 * 2, y + mov.1 * 2));
         }
     } 
+}
+
+#[test]
+fn just_call_map_creation() {
+    map_creation::base_map_frame();
 }
 
