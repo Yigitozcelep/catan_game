@@ -35,7 +35,7 @@ impl Deck {
         }
     }
     pub fn get_card(&mut self) -> Card {
-        let i = random_weighted_choice(&self.weights, self.weight_tot, &self.cards, &mut self.rng);
+        let i = random_weighted_choice(&self.weights, self.weight_tot, &mut self.rng);
         self.weights[i] += -1;
         self.weight_tot += -1;
         return self.cards[i];

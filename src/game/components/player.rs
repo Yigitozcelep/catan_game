@@ -1,8 +1,17 @@
 use serde::{Serialize, Deserialize};
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+pub enum PlayerNum {
+    Player1,
+    Player2,
+    Player3,
+    Player4,
+    None,
+}
+
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct Player {
-    pub player_num: usize,
+    pub player_num: PlayerNum,
     pub tot: usize,
     pub lumber: usize,
     pub grain: usize,
@@ -19,7 +28,7 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(player_num: usize) -> Player {
+    pub fn new(player_num: PlayerNum) -> Player {
         Player {
             player_num, tot: 0,lumber: 0,
             ore: 0,grain: 0,
