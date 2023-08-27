@@ -99,10 +99,10 @@ fn neighbour_hexagons (state: &State, mut x: isize, mut y: isize) -> Vec<(usize,
         x += mov.0;
         y += mov.1;
         for hex in &state.map[x as usize][y as usize].hexagons {
+            if hex.num == 6 {push_if_not_exist(&mut excludes, (6, state.num_weights[6] as usize));}
+            if hex.num == 8 {push_if_not_exist(&mut excludes, (4, state.num_weights[4] as usize));}
             if hex.num != 0 && state.num_weights[hex.num  - 2] != 0 {
                 push_if_not_exist(&mut excludes, (hex.num -2, state.num_weights[hex.num -2] as usize));
-                if hex.num == 6 {push_if_not_exist(&mut excludes, (6, state.num_weights[6] as usize));}
-                if hex.num == 8 {push_if_not_exist(&mut excludes, (4, state.num_weights[4] as usize));}
             }
         }
     }
