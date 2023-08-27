@@ -93,39 +93,40 @@ fn push_if_not_exist<T: PartialEq>(my_vec: &mut Vec<T>, mov: T) {
     if !my_vec.contains(&mov) { my_vec.push(mov);}
 }
 
-fn neighbour_hexagons (state: &State, mut x: isize, mut y: isize) -> Vec<usize>{
-    let mut excludes: Vec<usize> = Vec::new();
+fn neighbour_hexagons (state: &State, mut x: isize, mut y: isize) -> Vec<(usize, usize)>{
+    let mut excludes: Vec<(usize, usize)> = Vec::new();
     for mov in [(2,0), (2,2), (-2,2), (-2,0), (-2,-2), (2,-2)] {
         x += mov.0;
         y += mov.1;
         for hex in &state.map[x as usize][y as usize].hexagons {
             if hex.num != 0 && state.num_weights[hex.num  - 2] != 0 {
-                println!("-------------------------------------");
-                println!("hex_num: {}, result: {}", hex.num, (hex.num as isize - 2) as usize);
-                push_if_not_exist(&mut excludes, hex.num);
+                push_if_not_exist(&mut excludes, (hex.num -2, state.num_weights[hex.num -2] as usize));
+                if hex.num == 6 {push_if_not_exist(&mut excludes, (4, state.num_weights[4] as usize));}
+                if hex.num == 8 {push_if_not_exist(&mut excludes, (6, state.num_weights[6] as usize));}
             }
         }
     }
     excludes
 }
 
-fn save_weights(excludes: &Vec<usize>, state: &mut State) {
-    state.num_weight_tot -= excludes.len() as isize;
-    excludes.iter().for_each(|num| state.num_weights[num - 2] = 0);
+fn save_weights(excludes: &Vec<(usize, usize)>, state: &mut State) {
+    state.num_weight_tot -= excludes.iter().map(|data| data.1 as isize).sum::<isize>();
+    excludes.iter().for_each(|data| state.num_weights[data.0] = 0);
 }
 
-fn merge_weights(excludes: &Vec<usize>, state: &mut State) {
-    state.num_weight_tot += excludes.len() as isize;
-    excludes.iter().for_each(|num| state.num_weights[num - 2] = 1)
+fn merge_weights(excludes: &Vec<(usize, usize)>, state: &mut State) {
+    state.num_weight_tot += excludes.iter().map(|data| data.1 as isize).sum::<isize>();
+    excludes.iter().for_each(|data| state.num_weights[data.0] = data.1 as isize)
 }
 
-fn create_hexagon (state: &mut State, x: &mut isize, y: &mut isize, count: isize, plus_x: isize, plus_y: isize) { 
+fn create_hexagon (state: &mut State, x: &mut isize, y: &mut isize, count: isize, plus_x: isize, plus_y: isize) -> bool{ 
     for _ in 0..count {
         *x += plus_x;
         *y += plus_y;
         let moves = [(2,0), (2,2), (-2,2), (-2,0), (-2,-2), (2,-2)];
         let mut excludes = neighbour_hexagons(state, *x, *y);
         save_weights(&mut excludes, state);
+        if state.num_weight_tot == 0 {return false;}
         let hexagon = get_random_hexagon(state);
         merge_weights(&excludes, state);
         state.hexagon_list.push(hexagon);
@@ -140,48 +141,50 @@ fn create_hexagon (state: &mut State, x: &mut isize, y: &mut isize, count: isize
             }
             push_if_not_exist(&mut current_hexagon.valid_moves, (-mov.0 / 2, -mov.1 / 2));
         }
-        
     }
+    true
 }
 
-fn right_up (state: &mut State, x: &mut isize, y: &mut isize, count: isize) {
-    create_hexagon(state, x, y, count, -4,2);
+fn right_up (state: &mut State, x: &mut isize, y: &mut isize, count: isize) -> bool {
+    create_hexagon(state, x, y, count, -4,2)
 }
 
-fn right(state: &mut State, x: &mut isize, y: &mut isize, count: isize) {
-    create_hexagon(state, x, y, count, 0, 4);
+fn right(state: &mut State, x: &mut isize, y: &mut isize, count: isize) -> bool {
+    create_hexagon(state, x, y, count, 0, 4)
 }
 
-fn right_down(state: &mut State, x: &mut isize, y: &mut isize, count: isize) {
-    create_hexagon(state, x, y, count, 4, 2);
+fn right_down(state: &mut State, x: &mut isize, y: &mut isize, count: isize) -> bool {
+    create_hexagon(state, x, y, count, 4, 2)
 }   
 
-fn left_down(state: &mut State, x: &mut isize, y: &mut isize, count: isize) {
-    create_hexagon(state, x, y, count, 4, -2);
+fn left_down(state: &mut State, x: &mut isize, y: &mut isize, count: isize) -> bool {
+    create_hexagon(state, x, y, count, 4, -2)
 }
 
-fn left(state: &mut State, x: &mut isize, y: &mut isize, count: isize) {
-    create_hexagon(state, x, y, count, 0, -4);
+fn left(state: &mut State, x: &mut isize, y: &mut isize, count: isize) -> bool {
+    create_hexagon(state, x, y, count, 0, -4)
 }
 
-fn left_up(state: &mut State, x: &mut isize, y: &mut isize, count: isize) {
-    create_hexagon(state, x, y, count, -4, -2);
+fn left_up(state: &mut State, x: &mut isize, y: &mut isize, count: isize) -> bool {
+    create_hexagon(state, x, y, count, -4, -2)
 }
 
 pub fn base_map_frame() -> State {
-    let mut state = State::new();
-    let mut x = 6;
-    let mut y = -2;
-    for i in 0..2 {
-        right_down(&mut state, &mut x, &mut y, 3 - i);
-        right(&mut state, &mut x, &mut y, 2 - i);
-        right_up(&mut state, &mut x, &mut y, 2 - i);
-        left_up(&mut state, &mut x, &mut y, 2 - i);
-        left(&mut state, &mut x, &mut y, 2 - i);
-        left_down(&mut state, &mut x, &mut y, 1 - i);
+    'start: loop {
+        let mut state = State::new();
+        let mut x = 6;
+        let mut y = -2;
+        for i in 0..2 {
+            if !right_down(&mut state, &mut x, &mut y, 3 - i) {continue 'start;}
+            if !right(&mut state, &mut x, &mut y, 2 - i){continue 'start;}
+            if !right_up(&mut state, &mut x, &mut y, 2 - i){continue 'start;}
+            if !left_up(&mut state, &mut x, &mut y, 2 - i){continue 'start;}
+            if !left(&mut state, &mut x, &mut y, 2 - i){continue 'start;}
+            if !left_down(&mut state, &mut x, &mut y, 1 - i){continue 'start;}
+        }
+        if !right_down(&mut state, &mut x, &mut y, 1){continue 'start;}
+        return state;
     }
-    right_down(&mut state, &mut x, &mut y, 1);
-    return state;
 }
     
 
