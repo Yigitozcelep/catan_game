@@ -85,16 +85,12 @@ fn get_random_hexagon(state: &mut State, x: isize, y: isize) -> Option<Hexagon>{
     let mut excludes = neighbour_hexagons(state, x, y);
     save_weights(&mut excludes, state);
     if state.num_weight_tot == 0 {return None;}
-    let hexagon_index = random_weighted_choice(&state.hexagon_type_weights, state.hexagon_type_weight_tot, &mut state.rng);
-    state.hexagon_type_weights[hexagon_index] += -1;
-    state.hexagon_type_weight_tot += -1;
+    let hexagon_index = random_weighted_choice(&mut state.hexagon_type_weights, &mut state.hexagon_type_weight_tot, &mut state.rng);
     let hexagon_type = state.hexagon_types[hexagon_index];
     if hexagon_type == HexagonTypes::Desert {
         return  Some(Hexagon {num: 0, resource: Resources::Wool, hexagon_type});
     }
-    let num_index = random_weighted_choice(&state.num_weights, state.num_weight_tot, &mut state.rng);
-    state.num_weights[num_index] += -1;
-    state.num_weight_tot += -1;
+    let num_index = random_weighted_choice(&mut state.num_weights, &mut state.num_weight_tot, &mut state.rng);
     let resource = get_resource_of_hexagon_type(hexagon_type);
     merge_weights(&excludes, state);
     let hexagon = Hexagon { num: state.num_list[num_index] as usize, resource, hexagon_type};
@@ -133,9 +129,7 @@ fn merge_weights(excludes: &Vec<(usize, usize)>, state: &mut State) {
 }
 
 fn get_random_port(state: &mut State) -> PortTypes {
-    let i = random_weighted_choice(&state.port_type_weights, state.port_type_weight_tot, &mut state.rng);
-    state.port_type_weight_tot += -1;
-    state.port_type_weights[i] += -1;
+    let i = random_weighted_choice(&mut state.port_type_weights, &mut state.port_type_weight_tot, &mut state.rng);
     state.port_types[i]
 }
 

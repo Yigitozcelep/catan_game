@@ -35,14 +35,11 @@ impl Deck {
         }
     }
     pub fn get_card(&mut self) -> Card {
-        let i = random_weighted_choice(&self.weights, self.weight_tot, &mut self.rng);
-        self.weights[i] += -1;
-        self.weight_tot += -1;
+        let i = random_weighted_choice(&mut self.weights, &mut self.weight_tot, &mut self.rng);
         return self.cards[i];
     }
     #[inline(always)]
     pub fn is_fnished(&self) -> bool {
         self.weight_tot == 0
     }
-
 }
