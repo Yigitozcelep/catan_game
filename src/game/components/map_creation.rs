@@ -15,7 +15,7 @@ pub struct Hexagon {
     hexagon_type: HexagonTypes,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Point {
     pub player_num: PlayerNum,
     pub valid_moves: Vec<(isize, isize)>,
