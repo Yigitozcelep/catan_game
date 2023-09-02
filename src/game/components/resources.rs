@@ -10,7 +10,7 @@ pub enum Resources {
 }
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq)]
-pub enum HexagonType {
+pub enum HexagonTypes {
    Brick,
    Lumber,
    Wool,
@@ -19,3 +19,13 @@ pub enum HexagonType {
    Desert,
 }
 
+
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+pub enum PortTypes {
+   Brick,
+   Lumber,
+   Wool,
+   Grain,
+   Ore,
+   QuestionMark,
+}
