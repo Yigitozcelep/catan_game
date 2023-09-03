@@ -1,4 +1,4 @@
-use rand::{Rng, SeedableRng};
+use rand::SeedableRng;
 use rand::rngs::SmallRng;
 use super::helper_functions::random_weighted_choice;
 

@@ -1,4 +1,4 @@
-use rand::{Rng, SeedableRng};
+use rand::Rng;
 use rand::rngs::SmallRng;
 
 pub fn random_weighted_choice(weights: &mut [isize], weight_tot: &mut isize, rng: &mut SmallRng) -> usize{

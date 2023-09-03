@@ -1,10 +1,7 @@
 use crate::game::components::helper_functions::random_weighted_choice;
 use crate::game::components::player::PlayerNum;
-use crate::game::components::player::Player;
-use crate::game::components::resources::HexagonTypes;
-use crate::game::components::resources::Resources;
-use crate::game::components::resources::PortTypes;
-use rand::{Rng, SeedableRng};
+use crate::game::components::resources::{HexagonTypes, Resources, PortTypes};
+use rand::SeedableRng;
 use rand::rngs::SmallRng;
 use serde::{Serialize, Deserialize};
 
@@ -13,14 +10,15 @@ pub struct Hexagon {
     num: usize,
     resource: Resources,
     hexagon_type: HexagonTypes,
+    port: PortTypes,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct Point {
     pub player_num: PlayerNum,
     pub valid_moves: Vec<(isize, isize)>,
     pub is_housable: bool,
-    pub port: Option<PortTypes>,
+    pub port: PortTypes,
     pub hexagons: Vec<Hexagon>,
 }
 
@@ -64,7 +62,7 @@ impl Point {
             player_num: PlayerNum::None , 
             valid_moves: Vec::new(), 
             is_housable: true, 
-            port: None, 
+            port: PortTypes::None, 
             hexagons: Vec::new(), 
         }
     }
@@ -86,14 +84,16 @@ fn get_random_hexagon(state: &mut State, x: isize, y: isize) -> Option<Hexagon>{
     save_weights(&mut excludes, state);
     if state.num_weight_tot == 0 {return None;}
     let hexagon_index = random_weighted_choice(&mut state.hexagon_type_weights, &mut state.hexagon_type_weight_tot, &mut state.rng);
+    merge_weights(&excludes, state);
     let hexagon_type = state.hexagon_types[hexagon_index];
     if hexagon_type == HexagonTypes::Desert {
-        return  Some(Hexagon {num: 0, resource: Resources::Wool, hexagon_type});
+        let hexagon = Hexagon {num: 0, resource: Resources::Wool, hexagon_type, port: PortTypes::None };
+        state.hexagon_list.push(hexagon);
+        return Some(hexagon);
     }
     let num_index = random_weighted_choice(&mut state.num_weights, &mut state.num_weight_tot, &mut state.rng);
     let resource = get_resource_of_hexagon_type(hexagon_type);
-    merge_weights(&excludes, state);
-    let hexagon = Hexagon { num: state.num_list[num_index] as usize, resource, hexagon_type};
+    let hexagon = Hexagon { num: state.num_list[num_index] as usize, resource, hexagon_type, port: PortTypes::None};
     state.hexagon_list.push(hexagon);
     Some(hexagon)
 }
@@ -134,15 +134,18 @@ fn get_random_port(state: &mut State) -> PortTypes {
 }
 
 fn add_ports(state: &mut State) {
-    let data = [
+    let data: [[usize; 4]; 9] = [
         [14,2, 16,2], [20,4, 22,6], [22,10, 20,12],
         [18,16, 16,18], [12,20, 10,20], [6,18, 4,16],
         [2,12, 0,10], [0,6, 2,4], [6,2, 8,2],
-        ];
-    for [x1,y1, x2, y2] in data {
+    ];
+    let hexagon_indexes = [1,2,3,5,6,7,8,9,10];
+
+    for (i,[x1,y1, x2, y2]) in data.into_iter().enumerate(){
         let port = get_random_port(state);
-        state.map[x1][y1].port = Some(port);
-        state.map[x2][y2].port = Some(port);
+        state.map[x1][y1].port = port;
+        state.map[x2][y2].port = port;
+        state.hexagon_list[hexagon_indexes[i]].port = port;
     }
 }
 

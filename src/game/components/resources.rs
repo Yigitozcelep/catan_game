@@ -28,4 +28,5 @@ pub enum PortTypes {
    Grain,
    Ore,
    QuestionMark,
+   None,
 }
