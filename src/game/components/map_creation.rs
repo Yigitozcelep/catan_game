@@ -7,10 +7,10 @@ use serde::{Serialize, Deserialize};
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct Hexagon {
-    num: usize,
-    resource: Resources,
-    hexagon_type: HexagonTypes,
-    port: PortTypes,
+    pub num: usize,
+    pub resource: Resources,
+    pub hexagon_type: HexagonTypes,
+    pub port: PortTypes,
 }
 
 #[derive(Debug)]
@@ -38,7 +38,7 @@ pub struct State {
 }
 
 impl State {
-    fn new() -> State {
+    pub fn new() -> State {
         State {
             map: [[(); 21]; 23].map(|data| data.map(|_| Point::new())),
             hexagon_list: Vec::new(),
@@ -81,17 +81,17 @@ fn get_resource_of_hexagon_type(hexagon_type: HexagonTypes) -> Resources {
 
 fn get_random_hexagon(state: &mut State, x: isize, y: isize) -> Option<Hexagon>{
     let mut excludes = neighbour_hexagons(state, x, y);
-    save_weights(&mut excludes, state);
-    if state.num_weight_tot == 0 {return None;}
     let hexagon_index = random_weighted_choice(&mut state.hexagon_type_weights, &mut state.hexagon_type_weight_tot, &mut state.rng);
-    merge_weights(&excludes, state);
     let hexagon_type = state.hexagon_types[hexagon_index];
     if hexagon_type == HexagonTypes::Desert {
         let hexagon = Hexagon {num: 0, resource: Resources::Wool, hexagon_type, port: PortTypes::None };
         state.hexagon_list.push(hexagon);
         return Some(hexagon);
     }
+    save_weights(&mut excludes, state);
+    if state.num_weight_tot == 0 {return None;}
     let num_index = random_weighted_choice(&mut state.num_weights, &mut state.num_weight_tot, &mut state.rng);
+    merge_weights(&excludes, state);
     let resource = get_resource_of_hexagon_type(hexagon_type);
     let hexagon = Hexagon { num: state.num_list[num_index] as usize, resource, hexagon_type, port: PortTypes::None};
     state.hexagon_list.push(hexagon);
