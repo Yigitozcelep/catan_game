@@ -4,14 +4,14 @@ use catan_game::game::components::resources::HexagonTypes;
 #[test]
 fn just_call_map_creation() {
     for _ in 0..1000 {
-        map_creation::base_map_frame();
+        map_creation::random_base_map();
     }
 }
 
 #[test]
 fn check_6_8_and_same_num() {
     for _ in 0..1000 {
-        let res = map_creation::base_map_frame();
+        let res = map_creation::random_base_map();
         for el in &res.map {
             for point in el {
                 let mut data: Vec<usize> = Vec::new();
@@ -30,7 +30,7 @@ fn check_6_8_and_same_num() {
 fn check_num_counts() {
     for _ in 0..1000 {
         let mut data = [0,0,6,12,12,12,12,0,12,12,12,12,6];
-        let res = map_creation::base_map_frame();
+        let res = map_creation::random_base_map();
         for el in &res.map {
             for point in el {
                 for hex in &point.hexagons {
@@ -57,7 +57,7 @@ fn get_index(hex: HexagonTypes) -> usize {
 fn check_hexagon_counts() {
     for _ in 0..1000 {
         let mut data = [1,3,3,4,4,4];
-        let res = map_creation::base_map_frame();
+        let res = map_creation::random_base_map();
         for el in &res.hexagon_list {
             let i = get_index(el.hexagon_type);
             data[i] += -1;
