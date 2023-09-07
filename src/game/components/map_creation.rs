@@ -1,4 +1,4 @@
-use crate::game::components::helper_functions::random_weighted_choice;
+use crate::game::components::helper_functions::{random_weighted_choice, default_rng};
 use crate::game::components::resources::{HexagonTypes, Resources, PortTypes};
 use rand::SeedableRng;
 use rand::rngs::SmallRng;
@@ -21,6 +21,7 @@ pub struct Point {
     pub hexagons: Vec<Hexagon>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 pub struct State {
     pub map: [[Point;21]; 23],
     pub hexagon_list: Vec<Hexagon>,
@@ -33,6 +34,7 @@ pub struct State {
     num_list: [isize; 11],
     num_weights: [isize; 11] ,
     num_weight_tot: isize,
+    #[serde(skip, default="default_rng")]
     rng: SmallRng,
 }
 

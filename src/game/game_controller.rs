@@ -2,8 +2,9 @@ use super::components::player::Player;
 use super::components::deck::Deck;
 use super::components::bank::Bank;
 use super::components::map_creation::{State, random_base_map};
+use serde::{Serialize, Deserialize};
 
-
+#[derive(Serialize, Deserialize, Debug)]
 pub struct GameController{
     pub players: [Player; 4],
     pub deck: Deck,

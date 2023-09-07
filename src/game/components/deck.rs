@@ -1,8 +1,9 @@
 use rand::SeedableRng;
 use rand::rngs::SmallRng;
-use super::helper_functions::random_weighted_choice;
+use super::helper_functions::{random_weighted_choice, default_rng};
+use serde::{Serialize, Deserialize};
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Serialize, Deserialize, Debug)]
 pub enum Card {
     Knight,
     VictoryPoint,
@@ -11,10 +12,12 @@ pub enum Card {
     Monopoly,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Deck {
     cards: [Card; 5],
     weights: [isize; 5],
     weight_tot: isize,
+    #[serde(skip, default="default_rng")]
     rng: SmallRng,
 }
 
