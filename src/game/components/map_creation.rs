@@ -138,7 +138,7 @@ fn add_ports(state: &mut State) {
         [18,16, 16,18], [12,20, 10,20], [6,18, 4,16],
         [2,12, 0,10], [0,6, 2,4], [6,2, 8,2],
     ];
-    let hexagon_indexes = [1,2,3,5,6,7,8,9,10];
+    let hexagon_indexes = [1,2,3,5,6,7,9,10,11];
 
     for (i,[x1,y1, x2, y2]) in data.into_iter().enumerate(){
         let port = get_random_port(state);
