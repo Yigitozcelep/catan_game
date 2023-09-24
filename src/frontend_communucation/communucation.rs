@@ -23,3 +23,13 @@ pub fn get_bank() -> String {
     let game = GAMECONTROLLER.lock().unwrap();
     serde_json::to_string(&game.bank).unwrap()
 }
+
+pub fn get_players() -> String {
+    let game = GAMECONTROLLER.lock().unwrap();
+    serde_json::to_string(&game.players).unwrap()
+}
+
+pub fn get_deck() -> String {
+    let game = GAMECONTROLLER.lock().unwrap();
+    serde_json::to_string(&game.deck).unwrap()
+}

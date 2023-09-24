@@ -8,8 +8,8 @@ pub enum Card {
     Knight,
     VictoryPoint,
     YearOfPlenty,
-    RoadBuilding,
     Monopoly,
+    RoadBuilding,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -32,7 +32,7 @@ impl Deck {
             cards: [
                 Card::Knight, Card::VictoryPoint, Card::YearOfPlenty, Card::RoadBuilding, Card::Monopoly], 
             weights: [
-                COUNT_KNIGHT, COUNT_VICTORY_POINT, COUNT_YEAR_OF_PLENTY, COUNT_ROAD_BUILDING, COUNT_MONOPOLY],
+                COUNT_KNIGHT, COUNT_VICTORY_POINT, COUNT_YEAR_OF_PLENTY, COUNT_MONOPOLY, COUNT_ROAD_BUILDING],
             weight_tot: 25,
             rng: SmallRng::from_entropy(),
         }

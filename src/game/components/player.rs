@@ -15,10 +15,10 @@ pub struct Player {
     pub wool: usize,
     pub max_road: usize,
     pub max_army: usize,
-    pub dev_army: usize,
+    pub dev_knight: usize,
     pub dev_road: usize,
     pub dev_monopoly: usize,
-    pub dev_2_resources: usize,
+    pub  dev_any_2: usize,
     pub dev_victory: usize,
 }
 
@@ -30,8 +30,8 @@ impl Player {
             ore: 0,grain: 0,
             brick: 0,wool: 0,
             max_road: 0,max_army: 0,
-            dev_army: 0,dev_road: 0,
-            dev_monopoly: 0,dev_2_resources: 0,
+            dev_knight: 0,dev_road: 0,
+            dev_monopoly: 0, dev_any_2: 0,
             dev_victory: 0
         }
     }
