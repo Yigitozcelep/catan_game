@@ -22,7 +22,7 @@ pub struct Point {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct State {
+pub struct MapInfos {
     pub map: [[Point;21]; 23],
     pub hexagon_list: Vec<Hexagon>,
     port_types: [PortTypes; 6],
@@ -38,9 +38,9 @@ pub struct State {
     rng: SmallRng,
 }
 
-impl State {
-    fn new() -> State {
-        State {
+impl MapInfos {
+    fn new() -> MapInfos {
+        MapInfos {
             map: [[(); 21]; 23].map(|data| data.map(|_| Point::new())),
             hexagon_list: Vec::new(),
             port_types: [PortTypes::Brick, PortTypes::Grain, PortTypes::Lumber, PortTypes::Ore, PortTypes::Wool, PortTypes::QuestionMark],
@@ -82,7 +82,7 @@ fn get_resource_of_hexagon_type(hexagon_type: HexagonTypes) -> Resources {
     }
 }
 
-fn get_random_hexagon(state: &mut State, x: isize, y: isize) -> Option<Hexagon>{
+fn get_random_hexagon(state: &mut MapInfos, x: isize, y: isize) -> Option<Hexagon>{
     let mut excludes = neighbour_hexagons(state, x, y);
     let hexagon_index = random_weighted_choice(&mut state.hexagon_type_weights, &mut state.hexagon_type_weight_tot, &mut state.rng);
     let hexagon_type = state.hexagon_types[hexagon_index];
@@ -101,7 +101,7 @@ fn get_random_hexagon(state: &mut State, x: isize, y: isize) -> Option<Hexagon>{
     Some(hexagon)
 }
 
-fn neighbour_hexagons (state: &State, mut x: isize, mut y: isize) -> Vec<(usize, usize)>{
+fn neighbour_hexagons (state: &MapInfos, mut x: isize, mut y: isize) -> Vec<(usize, usize)>{
     let mut excludes: Vec<(usize, usize)> = Vec::new();
     for mov in [(2,0), (2,2), (-2,2), (-2,0), (-2,-2), (2,-2)] {
         x += mov.0;
@@ -117,22 +117,22 @@ fn neighbour_hexagons (state: &State, mut x: isize, mut y: isize) -> Vec<(usize,
     excludes
 }
 
-fn save_weights(excludes: &Vec<(usize, usize)>, state: &mut State) {
+fn save_weights(excludes: &Vec<(usize, usize)>, state: &mut MapInfos) {
     state.num_weight_tot -= excludes.iter().map(|data| data.1 as isize).sum::<isize>();
     excludes.iter().for_each(|data| state.num_weights[data.0] = 0);
 }
 
-fn merge_weights(excludes: &Vec<(usize, usize)>, state: &mut State) {
+fn merge_weights(excludes: &Vec<(usize, usize)>, state: &mut MapInfos) {
     state.num_weight_tot += excludes.iter().map(|data| data.1 as isize).sum::<isize>();
     excludes.iter().for_each(|data| state.num_weights[data.0] = data.1 as isize)
 }
 
-fn get_random_port(state: &mut State) -> PortTypes {
+fn get_random_port(state: &mut MapInfos) -> PortTypes {
     let i = random_weighted_choice(&mut state.port_type_weights, &mut state.port_type_weight_tot, &mut state.rng);
     state.port_types[i]
 }
 
-fn add_ports(state: &mut State) {
+fn add_ports(state: &mut MapInfos) {
     let data: [[usize; 4]; 9] = [
         [14,2, 16,2], [20,4, 22,6], [22,10, 20,12],
         [18,16, 16,18], [12,20, 10,20], [6,18, 4,16],
@@ -152,7 +152,7 @@ fn push_if_not_exist<T: PartialEq>(my_vec: &mut Vec<T>, mov: T) {
     if !my_vec.contains(&mov) { my_vec.push(mov);}
 }
 
-fn create_hexagon (state: &mut State, x: &mut isize, y: &mut isize, count: isize, plus_x: isize, plus_y: isize) -> bool{ 
+fn create_hexagon (state: &mut MapInfos, x: &mut isize, y: &mut isize, count: isize, plus_x: isize, plus_y: isize) -> bool{ 
     for _ in 0..count {
         *x += plus_x;
         *y += plus_y;
@@ -177,16 +177,16 @@ fn create_hexagon (state: &mut State, x: &mut isize, y: &mut isize, count: isize
     true
 }
 
-fn right_up (state: &mut State, x: &mut isize, y: &mut isize, count: isize) -> bool {create_hexagon(state, x, y, count, -4,2)}
-fn right(state: &mut State, x: &mut isize, y: &mut isize, count: isize) -> bool {create_hexagon(state, x, y, count, 0, 4)}
-fn right_down(state: &mut State, x: &mut isize, y: &mut isize, count: isize) -> bool {create_hexagon(state, x, y, count, 4, 2)}   
-fn left_down(state: &mut State, x: &mut isize, y: &mut isize, count: isize) -> bool {create_hexagon(state, x, y, count, 4, -2)}
-fn left(state: &mut State, x: &mut isize, y: &mut isize, count: isize) -> bool {create_hexagon(state, x, y, count, 0, -4)}
-fn left_up(state: &mut State, x: &mut isize, y: &mut isize, count: isize) -> bool {create_hexagon(state, x, y, count, -4, -2)}
+fn right_up (state: &mut MapInfos, x: &mut isize, y: &mut isize, count: isize) -> bool {create_hexagon(state, x, y, count, -4,2)}
+fn right(state: &mut MapInfos, x: &mut isize, y: &mut isize, count: isize) -> bool {create_hexagon(state, x, y, count, 0, 4)}
+fn right_down(state: &mut MapInfos, x: &mut isize, y: &mut isize, count: isize) -> bool {create_hexagon(state, x, y, count, 4, 2)}   
+fn left_down(state: &mut MapInfos, x: &mut isize, y: &mut isize, count: isize) -> bool {create_hexagon(state, x, y, count, 4, -2)}
+fn left(state: &mut MapInfos, x: &mut isize, y: &mut isize, count: isize) -> bool {create_hexagon(state, x, y, count, 0, -4)}
+fn left_up(state: &mut MapInfos, x: &mut isize, y: &mut isize, count: isize) -> bool {create_hexagon(state, x, y, count, -4, -2)}
 
-pub fn random_base_map() -> State {
+pub fn random_base_map() -> MapInfos {
     'start: loop {
-        let mut state = State::new();
+        let mut state = MapInfos::new();
         let mut x = 6;
         let mut y = -2;
         for i in 0..2 {

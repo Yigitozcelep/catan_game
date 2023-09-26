@@ -1,6 +1,5 @@
 use serde::{Serialize, Deserialize};
-use super::map_creation::State;
-
+use super::map_creation::MapInfos;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Player {
@@ -18,7 +17,7 @@ pub struct Player {
     pub dev_knight: usize,
     pub dev_road: usize,
     pub dev_monopoly: usize,
-    pub  dev_any_2: usize,
+    pub dev_any_2: usize,
     pub dev_victory: usize,
 }
 
@@ -36,27 +35,20 @@ impl Player {
         }
     }
 
-    pub fn get_first_move(&self, state: &State) -> Vec<(usize, usize)>{
-        let mut moved = [[false; 21];23];
-        let mut res: Vec<(usize, usize)> = Vec::new();
-        let mut q: Vec<(usize, usize)> = vec![(10,0)];
-        while !q.is_empty() {
-            let (x,y) = q.pop().unwrap();
-            res.push((x,y));
-            for (nx, ny) in &state.map[x][y].neighbour_houses {
-                if moved[*nx][*ny] || !state.map[*nx][*ny].is_housable() {continue;}
-                moved[*nx][*ny] = true;
-                q.push((*nx,*ny));
-            }
-        }
-        res
+
+    pub fn get_roads(&self, map_infos: &MapInfos) -> Vec<(usize, usize)> {
+        self.house_coors.iter().flat_map(|(x,y)| map_infos.map[*x][*y].neighbour_roads.clone()).collect()
+    }
+    
+    pub fn make_road(&mut self) {
+        unimplemented!()
     }
 
-    pub fn make_house(&mut self, state: &mut State, x: usize, y: usize) {
-        state.map[x][y].player_num = self.player_num;
+    pub fn make_house(&mut self, map_infos: &mut MapInfos, x: usize, y: usize) {
+        map_infos.map[x][y].player_num = self.player_num;
         self.house_coors.push((x,y));
-        for (nx,ny) in &state.map[x][y].neighbour_houses {
-            state.map[*nx][*ny].player_num = self.player_num;
+        for &(nx,ny) in &map_infos.map[x][y].neighbour_houses {
+            map_infos.map[nx][ny].player_num = self.player_num;
         }
     }
 }
