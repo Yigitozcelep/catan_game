@@ -47,6 +47,13 @@ pub fn get_roads() -> String {
     unimplemented!()
 }
 
+pub fn next_turn() {
+    let mut game = GAME_STATES.lock().unwrap();
+    if game.round < 4 { FirstPlacement::next_turn(&mut game); }
+    else if game.round < 8 { SecondPlacement::next_turn(&mut game); }
+    else { AfterPlacement::next_turn(&mut game); }
+}
+
 pub fn make_house(x: usize, y: usize) -> String {
     let mut game = GAME_STATES.lock().unwrap();
     if game.round < 4 {serde_json::to_string(&FirstPlacement::build_house(&mut game, x, y)).unwrap()}

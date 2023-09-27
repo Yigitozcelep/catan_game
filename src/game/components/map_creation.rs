@@ -68,7 +68,7 @@ impl Point {
         }
     }
     #[inline(always)]
-    pub fn is_housable(&self) -> bool {self.player_num == std::usize::MAX}
+    pub fn is_movable(&self) -> bool {self.player_num == std::usize::MAX}
 }
 
 fn get_resource_of_hexagon_type(hexagon_type: HexagonTypes) -> Resources {
